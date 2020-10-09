@@ -312,26 +312,26 @@ void cvCanny2(	const void* srcarr, void* dstarr,
 	}
 };
 
-void Canny2(	InputArray image, OutputArray _edges,
-				OutputArray _sobel_x, OutputArray _sobel_y,
-                double threshold1, double threshold2,
-                int apertureSize, bool L2gradient )
-{
-    Mat src = image.getMat();
-    _edges.create(src.size(), CV_8U);
-	_sobel_x.create(src.size(), CV_16S);
-	_sobel_y.create(src.size(), CV_16S);
-
-
-    CvMat c_src = src, c_dst = _edges.getMat();
-	CvMat c_dx = _sobel_x.getMat();
-	CvMat c_dy = _sobel_y.getMat();
-
-
-    cvCanny2(	&c_src, &c_dst, threshold1, threshold2,
-				&c_dx, &c_dy,
-				apertureSize + (L2gradient ? CV_CANNY_L2_GRADIENT : 0));
-};
+//void Canny2(	InputArray image, OutputArray _edges,
+//				OutputArray _sobel_x, OutputArray _sobel_y,
+//                double threshold1, double threshold2,
+//                int apertureSize, bool L2gradient )
+//{
+//    Mat src = image.getMat();
+//    _edges.create(src.size(), CV_8U);
+//	_sobel_x.create(src.size(), CV_16S);
+//	_sobel_y.create(src.size(), CV_16S);
+//
+//
+//    CvMat c_src = src, c_dst = _edges.getMat();
+//	CvMat c_dx = _sobel_x.getMat();
+//	CvMat c_dy = _sobel_y.getMat();
+//
+//
+//    cvCanny2(	&c_src, &c_dst, threshold1, threshold2,
+//				&c_dx, &c_dy,
+//				apertureSize + (L2gradient ? CV_CANNY_L2_GRADIENT : 0));
+//};
 
 
 void Labeling(Mat1b& image, vector<vector<Point> >& segments, int iMinLength)
@@ -1016,13 +1016,16 @@ bool SortTopLeft2BottomRight(const Point& lhs, const Point& rhs)
 void cvCanny3(	const void* srcarr, void* dstarr,
 				void* dxarr, void* dyarr,
                 int aperture_size )
+//void cvCanny3(  Mat srcarr, Mat dstarr,
+//				Mat dxarr, Mat dyarr,
+//                int aperture_size )
 {
     //cv::Ptr<CvMat> dx, dy;
     cv::AutoBuffer<char> buffer;
     std::vector<uchar*> stack;
     uchar **stack_top = 0, **stack_bottom = 0;
 
-    CvMat srcstub, *src = cvGetMat( srcarr, &srcstub );//IplImage µ½cvMatµÄ×ª»»
+    CvMat srcstub, *src = cvGetMat( srcarr, &srcstub );
     CvMat dststub, *dst = cvGetMat( dstarr, &dststub );
 
 	CvMat dxstub, *dx = cvGetMat( dxarr, &dxstub );
@@ -1041,8 +1044,8 @@ void cvCanny3(	const void* srcarr, void* dstarr,
 
     if( CV_MAT_TYPE( src->type ) != CV_8UC1 ||
         CV_MAT_TYPE( dst->type ) != CV_8UC1 ||
-		CV_MAT_TYPE( dx->type  ) != CV_16SC1 ||
-		CV_MAT_TYPE( dy->type  ) != CV_16SC1 )
+        CV_MAT_TYPE( dx->type  ) != CV_16SC1 ||
+        CV_MAT_TYPE( dy->type  ) != CV_16SC1 )
         CV_Error( CV_StsUnsupportedFormat, "" );
 
     if( !CV_ARE_SIZES_EQ( src, dst ))
@@ -1053,7 +1056,7 @@ void cvCanny3(	const void* srcarr, void* dstarr,
         CV_Error( CV_StsBadFlag, "" );
 
 
-	size.width = src->cols;
+    size.width = src->cols;
     size.height = src->rows;
    // size = cvGetMatSize( src );
 	
@@ -1064,6 +1067,9 @@ void cvCanny3(	const void* srcarr, void* dstarr,
 	//aperture_size = -1; //SCHARR
     cvSobel( src, dx, 1, 0, aperture_size );
     cvSobel( src, dy, 0, 1, aperture_size );
+
+//    Sobel( src, dx, CV_32F, 1, 0, aperture_size ); // aperture_size of the extended Sobel kernel; it must be 1, 3, 5, or 7.
+//    Sobel( src, dy, CV_32F, 0, 1, aperture_size );
 
 	//const Mat sobel_x(dx);	//Mat_<unsigned short>
 	//const Mat sobel_y(dy);
@@ -1077,7 +1083,7 @@ void cvCanny3(	const void* srcarr, void* dstarr,
 	for(i=0; i<size.height; ++i)
 	{
 		float* _pmag = magGrad.ptr<float>(i);
-		const short* _dx = (short*)(dx->data.ptr + dx->step*i);
+        const short* _dx = (short*)(dx->data.ptr + dx->step*i);
         const short* _dy = (short*)(dy->data.ptr + dy->step*i);
 		for(j=0; j<size.width; ++j)
 		{
@@ -1093,7 +1099,7 @@ void cvCanny3(	const void* srcarr, void* dstarr,
 	//% Determine Hysteresis Thresholds
 	
 	//set magic numbers
-	const int NUM_BINS = 64;	
+	const int NUM_BINS = 64;
 	const double percent_of_pixels_not_edges = 0.9;
 	const double threshold_ratio = 0.3;
 
@@ -1111,8 +1117,6 @@ void cvCanny3(	const void* srcarr, void* dstarr,
 		}
 	}	
 
-	
-	
 
 	//% Select the thresholds
 	float total(0.f);	
@@ -1364,13 +1368,11 @@ void Canny3(	InputArray image, OutputArray _edges,
 	_sobel_x.create(src.size(), CV_16S);
 	_sobel_y.create(src.size(), CV_16S);
 
+    CvMat c_src = cvMat(src), c_dst = cvMat(_edges.getMat());
+    CvMat c_dx = cvMat(_sobel_x.getMat());
+    CvMat c_dy = cvMat(_sobel_y.getMat());
 
-    CvMat c_src = src, c_dst = _edges.getMat();
-	CvMat c_dx = _sobel_x.getMat();
-	CvMat c_dy = _sobel_y.getMat();
-
-
-    cvCanny3(	&c_src, &c_dst, 
+    cvCanny3(	&c_src, &c_dst,
 				&c_dx, &c_dy,
 				apertureSize + (L2gradient ? CV_CANNY_L2_GRADIENT : 0));
 };

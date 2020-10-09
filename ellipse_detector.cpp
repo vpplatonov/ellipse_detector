@@ -12,21 +12,21 @@ lianbosong@foxmail.com
 
 last update: 
 */
-
 #include "stdafx.h"
 #include "tools.h"
 #include "CNEllipseDetector.h"
+
 using namespace std;
 using namespace cv;
 
 string SWORKINGDIR="EllipseDataset/";
 string DBNAME="Dataset#2";//"good2";//"/PrasadImages-DatasetPrasad";//"/RandomImages-Dataset#1";//"/BRhoChange";//
 string TESTIMGNAME="027_0003.jpg";//"163_0037.jpg";//"003_0144.jpg";//"193_0094.jpg";//"175_0026.jpg";//"im3949.jpg";//"177_0074.jpg";//"";//"140_0038.jpg";//"bike_0068.jpg";//
-int MethodId=1;
+int MethodId=7;
 //椭圆检测参数设置
-float	fThScoreScore = 0.7f;	//0.8
-float	fMinReliability	= 0.5f;	// Const parameters to discard bad ellipses 0.4
-float	fTaoCenters = 0.05f;//0.05 	
+float	fThScoreScore = 0.9f;	//0.8
+float	fMinReliability	= 0.9f;	// Const parameters to discard bad ellipses 0.4
+float	fTaoCenters = 0.06f;//0.05
 int		ThLength=16;//16
 float	MinOrientedRectSide=3.0f;
 
@@ -82,34 +82,98 @@ float showT(string sWorkingDir,string imagename, CNEllipseDetector cned,vector<E
 	if (showpic){
 		cout << "F-Measure: " << fmeasure << endl;
 		imshow("Cned", resultImage);
-		cvSaveImage("result/resultImage.jpg",&IplImage(resultImage));
+//		cvSaveImage("result/resultImage.jpg",&IplImage(resultImage));
+		imwrite("result/resultImage.jpg", resultImage);
 	}
 	return fmeasure;
 }
 void OnVideo()
 {
-	VideoCapture cap(0);
+//    String filename = "../soccer_ex06.avi";
+    String filename = "video/slice_14701073_25831.avi";
+
+	VideoCapture cap(filename);
 	if(!cap.isOpened()) return;
 
-	CNEllipseDetector cned;
+    Size sz;
+    sz.width = cap.get(CAP_PROP_FRAME_WIDTH);
+    sz.height = cap.get(CAP_PROP_FRAME_HEIGHT);
 
-	Mat1b gray;
+	CNEllipseDetector cned;
+    // Parameters Settings (Sect. 4.2)
+    int		iThLength = ThLength;
+    float	fThObb = MinOrientedRectSide;
+    float	fThPos = 1.0f;
+//    float	fTaoCenters = 0.05f; //0.05
+    int 	iNs = 16;//弦数
+    float	fMaxCenterDistance = sqrt(float(sz.width*sz.width + sz.height*sz.height)) * fTaoCenters;
+//    float	fThScoreScore = 0.7f;//0.8
+
+    // Other constant parameters settings.
+    // Gaussian filter parameters, in pre-processing
+    Size	szPreProcessingGaussKernelSize	= Size(5,5);
+    double	dPreProcessingGaussSigma		= 1.0;
+
+    float	fDistanceToEllipseContour		= 0.1f;	// (Sect. 3.3.1 - Validation)
+    //float	fMinReliability					= 0.4f;	// Const parameters to discard bad ellipses 0.5
+
+    // Initialize Detector with selected parameters
+    cned.SetParameters	(
+        szPreProcessingGaussKernelSize,
+        dPreProcessingGaussSigma,
+        fThPos,
+        fMaxCenterDistance,
+        iThLength,
+        fThObb,
+        fDistanceToEllipseContour,
+        fThScoreScore,
+        fMinReliability,
+        iNs
+    );
+
+    // Create Image writer
+    const string NAME = "video/slice_14701073_25831_detected.avi";
+    int ex = static_cast<int>(cap.get(CAP_PROP_FOURCC));
+    VideoWriter outputVideo;
+    Size S = Size((int) cap.get(CAP_PROP_FRAME_WIDTH),    // Acquire input size
+                  (int) cap.get(CAP_PROP_FRAME_HEIGHT));
+    outputVideo.open(NAME, ex, cap.get(CAP_PROP_FPS), S, true);
+    if (!outputVideo.isOpened())
+    {
+        cout  << "Could not open the output video for write: " << filename << endl;
+        return;
+    }
+
+    Mat1b gray;
 	while(true)
 	{	
 		Mat3b image;
 		cap >> image;
-		cvtColor(image, gray, CV_BGR2GRAY);	
+        if(!image.data){
+            break;
+        }
 
+//        Mat3b dilation_dst;
+//        int dilation_size = 2;
+//        Mat element = getStructuringElement( MORPH_ELLIPSE,
+//                                             Size( 2*dilation_size + 1, 2*dilation_size+1 ),
+//                                             Point( dilation_size, dilation_size ) );
+//        dilate( image, dilation_dst, element );
+
+        cvtColor(image, gray, COLOR_BGR2GRAY);
 		vector<Ellipse> ellipses;
 
 		//Find Ellipses		
 		cned.Detect(gray, ellipses);
-		cned.DrawDetectedEllipses(image,ellipses);
+//		cned.Detect(bw, ellipses);
+		cned.DrawDetectedEllipses(image,ellipses, 0, 3);
 		imshow("Output", image);
-
+        outputVideo << image;
 			
 		if(waitKey(10) >= 0) break;
 	}
+
+
 }
 
 vector<double> OnImage(string filename,float fThScoreScore,float fMinReliability,float fTaoCenters,bool showpic)
@@ -125,12 +189,34 @@ vector<double> OnImage(string filename,float fThScoreScore,float fMinReliability
 	}
 	Size sz = image.size();
 
+    Mat3b dilation_dst;
+	int dilation_size = 1;
+    Mat element = getStructuringElement( MORPH_ELLIPSE,
+                                         Size( 2*dilation_size + 1, 2*dilation_size+1 ),
+                                         Point( dilation_size, dilation_size ) );
+    dilate( image, dilation_dst, element );
+
 	// Convert to grayscale
 	Mat1b gray;
-	cvtColor(image, gray, CV_BGR2GRAY);
+	cvtColor(dilation_dst, gray, COLOR_BGR2GRAY);
+
+    // Apply adaptiveThreshold at the bitwise_not of gray, notice the ~ symbol
+//    Mat1b bw;
+//    adaptiveThreshold(~gray, bw, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 9, -3);
+//    // Specify size on horizontal axis
+//    int horizontal_size = bw.cols / 250;
+//    // Specify size on vertical axis
+//    int vertical_size = bw.rows / 250;
+//
+//    // Create structure element for extracting horizontal lines through morphology operations
+//    Mat commonStructure = getStructuringElement(MORPH_RECT, Size(horizontal_size, vertical_size));
+//    dilate(bw, bw, commonStructure, Point(-1, -1));
+
+
+    vector<Ellipse> ellipses;
 
 	// Parameters Settings (Sect. 4.2)
-	int		iThLength = ThLength;//过滤太短的弧
+	int		iThLength = ThLength;
 	float	fThObb = MinOrientedRectSide;
 	float	fThPos = 1.0f;
 	//float	fTaoCenters = 0.018f;//0.05
@@ -162,6 +248,7 @@ vector<double> OnImage(string filename,float fThScoreScore,float fMinReliability
 	// Detect 
 	vector<Ellipse> ellsCned;
 	Mat1b gray_clone=gray.clone();
+//	Mat1b gray_clone=bw.clone();
 	cned.Detect(gray_clone, ellsCned);
 	times = cned.GetTimes();
 
@@ -169,8 +256,8 @@ vector<double> OnImage(string filename,float fThScoreScore,float fMinReliability
 	cned.DrawDetectedEllipses(resultImage, ellsCned);
 	imshow("Cned", resultImage);
 	if(showpic){
-		_mkdir("result");
-		cvSaveImage("result/resultImage.jpg",&IplImage(resultImage));
+		mkdir("result", 0777);
+		imwrite("result/resultImage.jpg", resultImage);
 		SaveEllipses("result/result.txt", ellsCned);
 	}
 	double fmeasure = 0;//showT(sWorkingDir,imagename, cned,ellsCned,0.8f,showpic);
@@ -188,7 +275,7 @@ void SetParameter(map<char,string> Parameter){
 	-R The threshold of Reliability
 	-C The threshold of CenterDis
 	-M The method id
-	-P
+	-P Working Directory
 	*/
 	map<char,string>::iterator it;
 	for(it=Parameter.begin();it!=Parameter.end();++it){
@@ -289,7 +376,7 @@ vector<double> OnImage(string sWorkingDir,string imagename,float fThScoreScore,f
 	cned.Detect(gray_clone, ellsCned);
 	vector<double> times = cned.GetTimes();
 	if(showpic){
-		_mkdir("result");
+		mkdir("result", 0777);
 		SaveEllipses("result/result.txt", ellsCned);
 	}
 	double fmeasure = showT(sWorkingDir,imagename, cned,ellsCned,0.8f,showpic);
@@ -367,7 +454,7 @@ int main_OnePic()
 	if(!results.empty()){
 		showTime(results);//显示运行信息
 		waitKey(0);
-		cvDestroyWindow("Cned");
+		destroyWindow("Cned");
 	}
 	
 	return 0;
@@ -405,7 +492,7 @@ int main_allDB(int argc, char** argv)
 	char cnewDir[100];
 	sprintf(cnewDir,"normal/");
 	string newDir=cnewDir;
-	_mkdir(cnewDir);
+	mkdir(cnewDir, 0777);
 	vector<string> resultString;
 	resultString.push_back("iDir,fThScoreScore,fMinReliability,fTaoCenters,Edge Detection,Pre processing,Grouping,Estimation,Validation,Clustering,WholeTime,F-measure,countsOfFindEllipse,countsOfGetFastCenter");
 
@@ -592,7 +679,7 @@ int main_salt(int argc, char** argv)
 		char cnewDir[20];
 		sprintf(cnewDir,"%02d/",saltrate);
 		string newDir=cnewDir;
-		_mkdir(cnewDir);
+		mkdir(cnewDir, 0777);
 		vector<string> resultString;
 		resultString.push_back("iDir,fThScoreScore,fMinReliability,fTaoCenters,Edge Detection,Pre processing,Grouping,Estimation,Validation,Clustering,Totaltimes,F-measure,countsOfFindEllipse,countsOfGetFastCenter");
 		for(iDir=0;iDir<3;iDir++){
@@ -873,10 +960,10 @@ int main_CNC(){
 int main(int argc, char** argv)
 {
 	tCNC=0.2f;
-	fThScoreScore = 0.6f;	//0.8
-	fMinReliability	= 0.4f;	// Const parameters to discard bad ellipses 0.4
-	fTaoCenters = 0.04f;//0.05 	
-	ThLength=16;//16
+	fThScoreScore = 0.5f;	 // 0.8 / 0.5
+	fMinReliability	= 0.35f;	 // Const parameters to discard bad ellipses 0.4 / 0.4
+	fTaoCenters = 0.03f;     //0.05 / 0.02
+	ThLength=16;             //16
 	MinOrientedRectSide=3.0f;
 	if(argc==2){
 		string filename= argv[1];
@@ -886,7 +973,7 @@ int main(int argc, char** argv)
 			vector<double> results=OnImage(filename,fThScoreScore,fMinReliability, fTaoCenters, true);
 			if(!results.empty()){
 				showTime(results);//显示运行信息
-				waitKey(0);	cvDestroyWindow("Cned");
+				waitKey(0);	destroyWindow("Cned");
 				MethodId=0;
 				system("pause");
 			}
