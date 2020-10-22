@@ -23,7 +23,7 @@
 - 027_0003.jpg detect-time 18.94ms Image size [720*435].
 
 <img src="./resultImage/resultImage.jpg" width="60%" height="60%">
-- bike_0068.jpg detect-time 12.77ms Image size [640*480].
+- bike_0068.jpg detect-time 12.77ms Image size [640*480].open
 
 <img src="./resultImage/resultImage (6).jpg" width="60%" height="60%">
 - Other results are shown in paper.
