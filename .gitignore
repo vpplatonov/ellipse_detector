@@ -31,3 +31,6 @@
 *.exe
 
 .idea/
+__pycache__/
+video/
+images/

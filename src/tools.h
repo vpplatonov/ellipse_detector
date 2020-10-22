@@ -27,6 +27,7 @@ float value4SixPoints( V2SP );
 void PyrDown(string picName);
 Mat matResize(Mat src,double scale);
 void SaveEllipses(const string& fileName, const vector<Ellipse>& ellipses);
+vector<string> SaveEllipses(const vector<Ellipse>& ellipses);
 // 14pr
 void SaveEllipses(const string& workingDir, const string& imgName, const vector<Ellipse>& ellipses /*, const vector<double>& times*/);
 void LoadGT(vector<Ellipse>& gt, const string& sGtFileName, bool bIsAngleInRadians = true);
@@ -43,13 +44,13 @@ void salt(cv::Mat& image, int n);
 //salt
 
 
-//»æÖÆÑ¡³öµÄ»¡¶Î
+//ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½
 /**
-ÊäÈë£ºÒ»¸öÏóÏÞµÄ»¡¶ÎÈÝÆ÷
-Êä³ö£ºÏÔÊ¾»¡¶Î£¬Ò»¸öÏóÏÞµÄÒ»¸öÑÕÉ«¡£ÑÕÉ«Ëæ»ú
+ï¿½ï¿½ï¿½ë£ºÒ»ï¿½ï¿½ï¿½ï¿½ï¿½ÞµÄ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½Î£ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Þµï¿½Ò»ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½
 */
 void showEdge(vector<vector<Point>> points_,Mat& picture);
-//»æÖÆÑ¡³öµÄ»¡¶Î
+//ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½
 
 //file operation
 int writeFile(string fileName_cpp,vector<string> vsContent);
@@ -57,14 +58,14 @@ int readFile(string fileName_cpp);
 int readFileByChar(string fileName_split);
 void Trim(string &str);
 
-/******·ÖÀëÌØ¶¨¸ñÊ½µÄÊý¾Ý******/
-//C++ÖÐÃ»ÓÐSplit()Õâ¸ö·½·¨£¬ÐèÒª×Ô¶¨Òåº¯Êý·ÖÀëÊý¾Ý£¬¶øC#ºÍJavaÖÐÓÐÕâ¸ö·½·¨
+/******ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½******/
+//C++ï¿½ï¿½Ã»ï¿½ï¿½Split()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¶ï¿½ï¿½åº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½C#ï¿½ï¿½Javaï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 vector<string> getStr(string str);
-/******·ÖÀëÌØ¶¨¸ñÊ½µÄÊý¾Ý******/
+/******ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½******/
 /**
 * path:Ä¿Â¼
-* files£ºÓÃÓÚ±£´æÎÄ¼þÃûµÄvector
-* r£ºÊÇ·ñÐèÒª±éÀú×ÓÄ¿Â¼
+* filesï¿½ï¿½ï¿½ï¿½ï¿½Ú±ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½vector
+* rï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Â¼
 */
 void listDir(string real_dir,vector<string>& files,bool r = false);
 //file operation

@@ -26,7 +26,7 @@ int MethodId=7;
 //椭圆检测参数设置
 float	fThScoreScore = 0.9f;	//0.8
 float	fMinReliability	= 0.9f;	// Const parameters to discard bad ellipses 0.4
-float	fTaoCenters = 0.06f;//0.05
+float	fTaoCenters = 0.05f;//0.05
 int		ThLength=16;//16
 float	MinOrientedRectSide=3.0f;
 
@@ -59,7 +59,7 @@ void showTime(vector<double> times){
 		cout << "countsOfGetFastCenter \t"<<times[8]<<endl;
 	}
 }
-float showT(string sWorkingDir,string imagename, CNEllipseDetector cned,vector<Ellipse> ellsCned,float fThScoreScore, bool showpic){
+float showT(string sWorkingDir, string imagename, CNEllipseDetector cned,vector<Ellipse> ellsCned,float fThScoreScore, bool showpic){
 	vector<Ellipse> gt;
 	LoadGT(gt, sWorkingDir + "/gt/" + "gt_" + imagename + ".txt", false);
 	string filename = sWorkingDir + "/images/" + imagename;
@@ -87,10 +87,12 @@ float showT(string sWorkingDir,string imagename, CNEllipseDetector cned,vector<E
 	}
 	return fmeasure;
 }
+
 void OnVideo()
 {
 //    String filename = "../soccer_ex06.avi";
-    String filename = "video/slice_14701073_25831.avi";
+//    String filename = "video/slice_14701073_25831.avi";
+    String filename = "../One_min_Clips/14701101_28860_1min.mp4";
 
 	VideoCapture cap(filename);
 	if(!cap.isOpened()) return;
@@ -99,7 +101,6 @@ void OnVideo()
     sz.width = cap.get(CAP_PROP_FRAME_WIDTH);
     sz.height = cap.get(CAP_PROP_FRAME_HEIGHT);
 
-	CNEllipseDetector cned;
     // Parameters Settings (Sect. 4.2)
     int		iThLength = ThLength;
     float	fThObb = MinOrientedRectSide;
@@ -118,6 +119,7 @@ void OnVideo()
     //float	fMinReliability					= 0.4f;	// Const parameters to discard bad ellipses 0.5
 
     // Initialize Detector with selected parameters
+    CNEllipseDetector cned;
     cned.SetParameters	(
         szPreProcessingGaussKernelSize,
         dPreProcessingGaussSigma,
@@ -132,8 +134,9 @@ void OnVideo()
     );
 
     // Create Image writer
-    const string NAME = "video/slice_14701073_25831_detected.avi";
+    const string NAME = "video/14701101_28860_1min_detected.avi";
     int ex = static_cast<int>(cap.get(CAP_PROP_FOURCC));
+
     VideoWriter outputVideo;
     Size S = Size((int) cap.get(CAP_PROP_FRAME_WIDTH),    // Acquire input size
                   (int) cap.get(CAP_PROP_FRAME_HEIGHT));
@@ -167,10 +170,11 @@ void OnVideo()
 		cned.Detect(gray, ellipses);
 //		cned.Detect(bw, ellipses);
 		cned.DrawDetectedEllipses(image,ellipses, 0, 3);
+
 		imshow("Output", image);
-        outputVideo << image;
 			
 		if(waitKey(10) >= 0) break;
+        outputVideo << image;
 	}
 
 
@@ -179,7 +183,6 @@ void OnVideo()
 vector<double> OnImage(string filename,float fThScoreScore,float fMinReliability,float fTaoCenters,bool showpic)
 {
 	vector<double> times;
-	CNEllipseDetector cned;
 	// Read image
 	Mat3b image = imread(filename);
 	
@@ -189,16 +192,16 @@ vector<double> OnImage(string filename,float fThScoreScore,float fMinReliability
 	}
 	Size sz = image.size();
 
-    Mat3b dilation_dst;
-	int dilation_size = 1;
-    Mat element = getStructuringElement( MORPH_ELLIPSE,
-                                         Size( 2*dilation_size + 1, 2*dilation_size+1 ),
-                                         Point( dilation_size, dilation_size ) );
-    dilate( image, dilation_dst, element );
+//    Mat3b dilation_dst;
+//	int dilation_size = 1;
+//    Mat element = getStructuringElement( MORPH_ELLIPSE,
+//                                         Size( 2*dilation_size + 1, 2*dilation_size+1 ),
+//                                         Point( dilation_size, dilation_size ) );
+//    dilate( image, dilation_dst, element );
 
 	// Convert to grayscale
 	Mat1b gray;
-	cvtColor(dilation_dst, gray, COLOR_BGR2GRAY);
+	cvtColor(image, gray, COLOR_BGR2GRAY);
 
     // Apply adaptiveThreshold at the bitwise_not of gray, notice the ~ symbol
 //    Mat1b bw;
@@ -213,7 +216,7 @@ vector<double> OnImage(string filename,float fThScoreScore,float fMinReliability
 //    dilate(bw, bw, commonStructure, Point(-1, -1));
 
 
-    vector<Ellipse> ellipses;
+//    vector<Ellipse> ellipses;
 
 	// Parameters Settings (Sect. 4.2)
 	int		iThLength = ThLength;
@@ -234,7 +237,9 @@ vector<double> OnImage(string filename,float fThScoreScore,float fMinReliability
 	//float	fMinReliability					= 0.4f;	// Const parameters to discard bad ellipses 0.5
 
 	// Initialize Detector with selected parameters
-	cned.SetParameters	(	szPreProcessingGaussKernelSize,	
+    CNEllipseDetector cned;
+	cned.SetParameters	(
+	    szPreProcessingGaussKernelSize,
 		dPreProcessingGaussSigma,		
 		fThPos,
 		fMaxCenterDistance,
@@ -316,14 +321,15 @@ void ReadParameter(int argc,char** argv){
 	Trim(sPa);
     Parameter.insert(pair<char,string>(cP,sPa));
 	map<char,string>::iterator it;
-    for(it=Parameter.begin();it!=Parameter.end();++it)
-        cout<<"key: "<<it->first <<" value: "<<it->second<<endl;
+//    for(it=Parameter.begin();it!=Parameter.end();++it)
+//        cout<<"key: "<<it->first <<" value: "<<it->second<<endl;
 	SetParameter(Parameter);
 	
 }
 
 
-vector<double> OnImage(string sWorkingDir,string imagename,float fThScoreScore,float fMinReliability,float fTaoCenters,bool showpic)
+vector<double> OnImage(string sWorkingDir,string imagename,float fThScoreScore,float fMinReliability,
+                       float fTaoCenters,bool showpic)
 {
 	CNEllipseDetector cned;
 
@@ -378,13 +384,18 @@ vector<double> OnImage(string sWorkingDir,string imagename,float fThScoreScore,f
 	if(showpic){
 		mkdir("result", 0777);
 		SaveEllipses("result/result.txt", ellsCned);
+        double fmeasure = showT(sWorkingDir,imagename, cned,ellsCned,0.8f,showpic);
+        times.push_back(fmeasure);
 	}
-	double fmeasure = showT(sWorkingDir,imagename, cned,ellsCned,0.8f,showpic);
-	times.push_back(fmeasure);
+	else {
+        SaveEllipses(ellsCned);
+	}
+
 	times.push_back(cned.countsOfFindEllipse);
 	times.push_back(cned.countsOfGetFastCenter);
 	return times;
 }
+
 vector<double> database(string sWorkingDir,float fThScoreScore,float fMinReliability,float fTaoCenters){
 	vector<string> resultString;
 	resultString.push_back("picName,Edge Detection,Pre processing,Grouping,Estimation,Validation,Clustering,WholeTime,F-measure,countsOfFindEllipse,countsOfGetFastCenter");
@@ -959,23 +970,24 @@ int main_CNC(){
 
 int main(int argc, char** argv)
 {
-	tCNC=0.2f;
+	tCNC = 0.2f;
 	fThScoreScore = 0.5f;	 // 0.8 / 0.5
 	fMinReliability	= 0.35f;	 // Const parameters to discard bad ellipses 0.4 / 0.4
-	fTaoCenters = 0.03f;     //0.05 / 0.02
-	ThLength=16;             //16
-	MinOrientedRectSide=3.0f;
+	fTaoCenters = 0.02f;     //0.05 / 0.02
+	ThLength = 16;             //16
+	MinOrientedRectSide = 3.0f;
 	if(argc==2){
-		string filename= argv[1];
+		string filename = argv[1];
 		if(NULL!=strstr(filename.c_str(),".jpg")||NULL!=strstr(filename.c_str(),".bmp")
-			||NULL!=strstr(filename.c_str(),".JPG")||NULL!=strstr(filename.c_str(),".png")){	
-			cout<<filename<<endl;
+			||NULL!=strstr(filename.c_str(),".JPG")||NULL!=strstr(filename.c_str(),".png")){
+		    cout<<filename<<endl;
 			vector<double> results=OnImage(filename,fThScoreScore,fMinReliability, fTaoCenters, true);
 			if(!results.empty()){
-				showTime(results);//显示运行信息
+				showTime(results);
 				waitKey(0);	destroyWindow("Cned");
 				MethodId=0;
-				system("pause");
+//				system("pause");
+				return 0;
 			}
 		}
 	}
@@ -1013,9 +1025,18 @@ int main(int argc, char** argv)
 		MinOrientedRectSide=3.0f;
 		main_CNC();
 		}break;
+	case 9:{
+        vector<double> results=OnImage(
+                SWORKINGDIR,
+                TESTIMGNAME,
+                fThScoreScore,
+                fMinReliability,
+                fTaoCenters,
+                false);
+		} break;
 	default: break;
 	}
-	system("pause");
+//	system("pause");
 	//main_normalDB(argc, argv);//论文中三个数据库，不同参数的实验
 	//OnVideo();//摄像头
 	return 0;	   

@@ -30,7 +30,7 @@ using namespace cv;
 
 #ifndef GLOBAL
 #define GLOBAL
-//ÉùÃ÷È«¾Ö±äÁ¿
+//ï¿½ï¿½ï¿½ï¿½È«ï¿½Ö±ï¿½ï¿½ï¿½
 	extern bool myselect1;
 	extern bool myselect2;
 	extern bool myselect3;
@@ -55,19 +55,19 @@ using namespace cv;
 struct EllipseData
 {
 	bool isValid;
-	float ta;//»¡aµÄ Æ½ÐÐÏÒÖÐµãÁ¬ÏßÌÝ¶È
-	float tb;//»¡bµÄ
-	float ra;//ÏÒaÌÝ¶È »¡1ÆðµãºÍ»¡2 ÖÐµãµÄÐ±ÂÊ
-	float rb;//ÏÒbÌÝ¶È »¡1ÖÐµãºÍ»¡2 Î²µãµÄÐ±ÂÊ
-	Point2f Ma;//»¡aµÄ Æ½ÐÐÏÒÖÐµãÊý×éµÄÖÐ¼äÔªËØ
-	Point2f Mb;//»¡bµÄ
-	Point2f Cab;//ÍÖÔ²ÖÐÐÄµã
-	vector<float> Sa;// »¡aµÄ Æ½ÐÐÏÒÖÐµãÁ¬ÏßÌÝ¶È
+	float ta;//ï¿½ï¿½aï¿½ï¿½ Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½
+	float tb;//ï¿½ï¿½bï¿½ï¿½
+	float ra;//ï¿½ï¿½aï¿½Ý¶ï¿½ ï¿½ï¿½1ï¿½ï¿½ï¿½Í»ï¿½2 ï¿½Ðµï¿½ï¿½Ð±ï¿½ï¿½
+	float rb;//ï¿½ï¿½bï¿½Ý¶ï¿½ ï¿½ï¿½1ï¿½Ðµï¿½Í»ï¿½2 Î²ï¿½ï¿½ï¿½Ð±ï¿½ï¿½
+	Point2f Ma;//ï¿½ï¿½aï¿½ï¿½ Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½Ôªï¿½ï¿½
+	Point2f Mb;//ï¿½ï¿½bï¿½ï¿½
+	Point2f Cab;//ï¿½ï¿½Ô²ï¿½ï¿½ï¿½Äµï¿½
+	vector<float> Sa;// ï¿½ï¿½aï¿½ï¿½ Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½
 	vector<float> Sb;//
 };
 
 
-class CNEllipseDetector
+class CV_EXPORTS_W CNEllipseDetector
 {
 	// Parameters
 
@@ -121,10 +121,6 @@ class CNEllipseDetector
 	int* accA;				// pointer to accumulator A
 
 
-	
-
-
-
 public:
 	float countsOfFindEllipse;
 	float countsOfGetFastCenter;
@@ -135,13 +131,13 @@ public:
 	void DetectAfterPreProcessing(vector<Ellipse>& ellipses, Mat1b& E, Mat1f& PHI);
 
 	//Detect the ellipses in the gray image
-	void Detect(Mat1b& gray, vector<Ellipse>& ellipses);
+	void CV_WRAP Detect(Mat1b& gray, vector<Ellipse>& ellipses);
 	
 	//Draw the first iTopN ellipses on output
-	void DrawDetectedEllipses(Mat3b& output, vector<Ellipse>& ellipses, int iTopN=0, int thickness=2);
+	void CV_WRAP DrawDetectedEllipses(Mat3b& output, vector<Ellipse>& ellipses, int iTopN=0, int thickness=2);
 	
 	//Set the parameters of the detector
-	void SetParameters	(	Size	szPreProcessingGaussKernelSize,
+	void CV_WRAP SetParameters	(	Size	szPreProcessingGaussKernelSize,
 							double	dPreProcessingGaussSigma,
 							float 	fThPosition,
 							float	fMaxCenterDistance,
@@ -262,9 +258,5 @@ private:
 		_times[idx] = ((double)cv::getTickCount() - _times[idx])*1000. / cv::getTickFrequency();
 		_times[idx] += _timesHelper[idx];
 	};
-	
-
-
 
 };
-

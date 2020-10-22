@@ -1,0 +1,3 @@
+/home/vplatonov/workspace/globallogic/sport_radar/ellipse-detector/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/vplatonov/workspace/globallogic/sport_radar/ellipse-detector/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/vplatonov/workspace/globallogic/sport_radar/ellipse-detector/cmake-build-debug/CMakeFiles/ellipse_detector.dir

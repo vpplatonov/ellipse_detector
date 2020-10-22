@@ -384,29 +384,36 @@ void listDir(string real_dir,vector<string>& files,bool r){
 	}
 	sort(files.begin(),files.end());//����
 }
-void SaveEllipses(const string& fileName, const vector<Ellipse>& ellipses){
+
+vector<string> SaveEllipses(const vector<Ellipse>& ellipses){
 	unsigned n = ellipses.size();
 	vector<string> resultString;
 	stringstream resultsitem;
 	// Save number of ellipses
-	resultsitem << n ;
+//	resultsitem << n ;
 	resultString.push_back(resultsitem.str());
 	// Save ellipses
 	for (unsigned i = 0; i<n; ++i)
 	{
 		const Ellipse& e = ellipses[i];
 		resultsitem.str("");
-		resultsitem << e._xc << "\t" << e._yc << "\t" 
+		resultsitem << "ellipse" << "\t";
+		resultsitem << e._xc << "\t" << e._yc << "\t"
 			<< e._a << "\t" << e._b << "\t" 
 			<< e._rad << "\t" << e._score;
 		resultString.push_back(resultsitem.str());
 	}
-	writeFile(fileName,resultString);
+
 	for (int i=0;i<resultString.size();i++){
 		cout<<resultString[i]<<endl;
 	}
-}
 
+	return resultString;
+}
+void SaveEllipses(const string& fileName, const vector<Ellipse>& ellipses){
+    vector<string> resultString = SaveEllipses(ellipses);
+    writeFile(fileName, resultString);
+}
 // 14pr
 // Should be checked
 void SaveEllipses(

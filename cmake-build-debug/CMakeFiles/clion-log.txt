@@ -1,0 +1,4 @@
+/home/vplatonov/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/202.7660.37/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/vplatonov/workspace/globallogic/sport_radar/ellipse-detector
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/vplatonov/workspace/globallogic/sport_radar/ellipse-detector/cmake-build-debug

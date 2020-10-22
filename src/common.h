@@ -100,25 +100,26 @@ bool SortTopLeft2BottomRight(const Point& lhs, const Point& rhs);
 bool SortBottomLeft2TopRight2f(const Point2f& lhs, const Point2f& rhs);
 
 
-struct Ellipse
+struct CV_EXPORTS_W_MAP Ellipse
 {
-	float _xc;
-	float _yc;
-	float _a;
-	float _b;
-	float _rad;
-	float _score;
+	CV_PROP_RW float _xc, _yc, _a, _b, _rad, _score;
+//	float _xc;
+//	float _yc;
+//	float _a;
+//	float _b;
+//	float _rad;
+//	float _score;
 
-	Ellipse() : _xc(0.f), _yc(0.f), _a(0.f), _b(0.f), _rad(0.f), _score(0.f) {};
-	Ellipse(float xc, float yc, float a, float b, float rad, float score = 0.f) : _xc(xc), _yc(yc), _a(a), _b(b), _rad(rad), _score(score) {};
-	Ellipse(const Ellipse& other) : _xc(other._xc), _yc(other._yc), _a(other._a), _b(other._b), _rad(other._rad), _score(other._score) {};
+	CV_WRAP Ellipse() : _xc(0.f), _yc(0.f), _a(0.f), _b(0.f), _rad(0.f), _score(0.f) {};
+	CV_WRAP Ellipse(float xc, float yc, float a, float b, float rad, float score = 0.f) : _xc(xc), _yc(yc), _a(a), _b(b), _rad(rad), _score(score) {};
+	CV_WRAP Ellipse(const Ellipse& other) : _xc(other._xc), _yc(other._yc), _a(other._a), _b(other._b), _rad(other._rad), _score(other._score) {};
 
-	void Draw(Mat& img, const Scalar& color, const int thickness)
+	CV_WRAP void Draw(Mat& img, const Scalar& color, const int thickness)
 	{
 		ellipse(img, Point(cvRound(_xc),cvRound(_yc)), Size(cvRound(_a),cvRound(_b)), _rad * 180.0 / CV_PI, 0.0, 360.0, color, thickness);
 	};
 
-	void Draw(Mat3b& img, const int thickness)
+	CV_WRAP void Draw(Mat3b& img, const int thickness)
 	{
 		Scalar color(0, cvFloor(255.f * _score), 0);
 		ellipse(img, Point(cvRound(_xc),cvRound(_yc)), Size(cvRound(_a),cvRound(_b)), _rad * 180.0 / CV_PI, 0.0, 360.0, color, thickness);

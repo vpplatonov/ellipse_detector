@@ -380,8 +380,6 @@ void Labeling(Mat1b& image, vector<vector<Point> >& segments, int iMinLength)
 					x2=i%w;
 					y2=i/w;
 
-
-
 					point.x=x2;
 					point.y=y2;
 
